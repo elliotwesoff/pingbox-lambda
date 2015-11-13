@@ -53,8 +53,8 @@ function updateStats() {
         var totalPings = host['total_pings'];
 
         var data = {
-            "testCaseId" : { "S" : testCaseId.toString() },
-            "reportDate" : { "S" : reportDate }
+            "TestCaseId" : { "S" : testCaseId.toString() },
+            "ReportDate" : { "S" : reportDate }
         };
 
         writeItem({ tableName: "HostStat", object: data })
@@ -77,7 +77,7 @@ function writeItem(options) {
 
     dynamodb.putItem(params, function(err, data) {
         if (!err) {
-            console.log('Successfully wrote data to the ' + tableName + ' table:');
+            console.log('Successfully wrote data to the ' + options['tableName'] + ' table:');
             console.log(data);
         } else {
             throw "An error occurred writing to the database: " + err.toString();
