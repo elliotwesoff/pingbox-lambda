@@ -29,6 +29,10 @@ bucket = Aws::S3::Bucket.new(bucket_name, client, region: Aws.config[:region])
 obj = Aws::S3::Object.new(bucket_name, file_name, client: client)
 
 obj.upload_file("#{Dir.pwd}/#{file_name}")
+puts "Uploaded code to S3 bucket: #{bucket.name}"
 
 FileUtils.rm(file_name)
-puts "Uploaded code to S3 bucket: #{bucket.name}"
+puts "Removed zip file from local machine, updating source in S3..."
+puts `aws lambda update-function-code --function-name ProcessPingsDev --region us-east-1  --s3-bucket pingbox-etc --s3-key ProcessPings.zip`
+puts "\ndone!\n\n"
+
