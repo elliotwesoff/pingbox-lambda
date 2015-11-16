@@ -26,18 +26,23 @@ exports.handler = function(event, context) {
         try {
             if (!err) {
 
-                jsonData    = JSON.parse(fileData.Body.toString());
-                testCaseId  = jsonData['test_case_id'];
-                time        = jsonData['ping_day'];
-                reportDate  = formattedDate(new Date(time));
+                var jsonData    = JSON.parse(fileData.Body.toString()),
+                testCaseId  = jsonData['test_case_id'],
+                time        = jsonData['ping_day'],
+                //reportDate  = formattedDate(new Date(time));
                 hostStats = jsonData['host_stats'];
 
-                console.log('ITS WORKING!!!!!!1');
-                // update host stats.
-                //updateStats();
+                var dbItem = {
+                    "TestCaseId" : testCaseId,
+                    "Time"       : time,
+                    "HostStats"  : hostStats
+                };
 
-                // add items to the cached ping table.
-                //cachePings();
+                // shove our data right into the database. GIT IN THERE!!!
+                writeItem({ tableName: 'PingData', object: dbItem });
+
+                // remove the file from S3.
+                deleteFile();
 
                 context.succeed();
 
@@ -56,7 +61,7 @@ function writeItem(options) {
     // write an item to the database as specified by the 'tableName' option.
     
     console.log('writing to table: ' + options['tableName']);
-    console.log('data: ' + options['object']);
+    console.log('data: ' + options['object'].toString());
 
     if (!options['tableName'] || !options['object']) throw 'Insufficient parameters provided for database write.';
 
@@ -75,27 +80,6 @@ function writeItem(options) {
     });
 }
 
-function getItem(options) {
-    // retrieve an item from the database.
-    
-    if (!options['tableName'] || !options['object']) throw 'Insufficient parameters provided for database read.';
-
-    var params = {
-        TableName: options['tableName'],
-        Key: options['object']
-    };
-
-    dynamodbDoc.get(params, function(err, data) {
-        if (!err) {
-            console.log('Retrieved item from ' + options['tableName'] + ' table:');
-            console.log(data);
-            return data.Body;
-        } else {
-            throw "An error occurred reading from the database: " + err.toString();
-        }
-    });
-}
-
 function formattedDate(input) {
     try {
 
@@ -110,6 +94,20 @@ function formattedDate(input) {
     } catch(err) {
         throw "the submitted date format was incorrect --- " + err.message;
     }
+}
+
+function deleteFile() {
+    // remove the file from our S3 data bucket.
+    
+    var params = {
+        Bucket: srcBucket,
+        Key:    srcKey
+    };
+
+    s3.deleteObject(params, function(err, data) {
+        if (err) throw "Error deleting object from S3: " + err.toString();
+        else     console.log("Deleted data file from source bucket: " + srcBucket + "\n---\n" + data.toString());
+    });
 }
 
 //function updateStats() {
@@ -174,5 +172,23 @@ function formattedDate(input) {
     //});
 //}
 
-//function cachePings() {
+//function getItem(options) {
+    //// retrieve an item from the database.
+    
+    //if (!options['tableName'] || !options['object']) throw 'Insufficient parameters provided for database read.';
+
+    //var params = {
+        //TableName: options['tableName'],
+        //Key: options['object']
+    //};
+
+    //dynamodbDoc.get(params, function(err, data) {
+        //if (!err) {
+            //console.log('Retrieved item from ' + options['tableName'] + ' table:');
+            //console.log(data);
+            //return data.Body;
+        //} else {
+            //throw "An error occurred reading from the database: " + err.toString();
+        //}
+    //});
 //}
