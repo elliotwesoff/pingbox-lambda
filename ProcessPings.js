@@ -32,6 +32,7 @@ exports.handler = function(event, context) {
                 reportDate  = formattedDate(new Date(time));
                 hostStats = jsonData['host_stats'];
 
+                console.log('hihihihihihihihi');
                 // update host stats.
                 //updateStats();
 

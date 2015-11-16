@@ -7,12 +7,10 @@ file_name = 'ProcessPings.zip'
 if File.exists?(file_name)
   FileUtils.rm(file_name) 
   puts "Removed #{file_name}"
-else
-  puts "#{file_name} doesn't exist."
 end
 
 ### create the new zip file.
-puts `zip -9 ProcessPings.zip *`
+puts `zip -r -x install_dependencies upload_code_package.rb *.git* -9 ProcessPings.zip .`
 
 ### initialize our S3 client and use it to upload our file to
 ###  our code-repo bucket, pingbox-lambda.
