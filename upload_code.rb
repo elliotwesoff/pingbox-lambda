@@ -24,15 +24,26 @@ Aws.config.update({
 
 bucket_name = 'pingbox-etc'
 
+aws_lambda = Aws::Lambda::Client.new(region: Aws.config[:region], credentials: Aws.config[:credentials])
 client = Aws::S3::Client.new(region: Aws.config[:region], credentials: Aws.config[:credentials])
 bucket = Aws::S3::Bucket.new(bucket_name, client, region: Aws.config[:region])
 obj = Aws::S3::Object.new(bucket_name, file_name, client: client)
 
 obj.upload_file("#{Dir.pwd}/#{file_name}")
-puts "Uploaded code to S3 bucket: #{bucket.name}"
+puts "\nUploaded code to S3 bucket: #{bucket.name}"
 
+### clean up...
 FileUtils.rm(file_name)
-puts "Removed zip file from local machine, updating source in S3..."
-puts `aws lambda update-function-code --function-name ProcessPingsDev --region us-east-1  --s3-bucket pingbox-etc --s3-key ProcessPings.zip`
-puts "\ndone!\n\n"
+
+### update the source of the lambda function.  
+### this tells the function to read the code we just uploaded.
+puts "Updating lambda source..."
+
+aws_lambda.update_function_code(
+  function_name: "ProcessPingsDev",
+  s3_bucket: bucket_name,
+  s3_key: file_name
+)
+
+puts "done!\n\n"
 
