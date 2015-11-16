@@ -48,9 +48,6 @@ exports.handler = function(event, context) {
 
 function writeItem(options) {
     // write an item to the database as specified by the 'tableName' option.
-    
-    console.log('writing to table: ' + options['tableName']);
-    console.log('data: ' + options['object'].toString());
 
     if (!options['tableName'] || !options['object']) throw 'Insufficient parameters provided for database write.';
 
@@ -60,12 +57,8 @@ function writeItem(options) {
     };
 
     dynamodbDoc.put(params, function(err, data) {
-        if (!err) {
-            console.log('Successfully wrote data to the ' + options['tableName'] + ' table:');
-            console.log(data);
-        } else {
-            throw "An error occurred writing to the database: " + err.toString();
-        }
+        if (!err) console.log('Successfully wrote data to the ' + options['tableName'] + ' table:');
+        else      throw "An error occurred writing to the database: " + err.toString();
     });
 }
 
@@ -79,7 +72,7 @@ function deleteFile() {
 
     s3.deleteObject(params, function(err, data) {
         if (err) throw "Error deleting object from S3: " + err.toString();
-        else     console.log("Deleted data file from source bucket: " + srcBucket + "/" + srcKey);
+        else     console.log("Deleted data file from source bucket\n: " + srcBucket + "/" + srcKey);
     });
 }
 
