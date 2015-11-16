@@ -1,8 +1,3 @@
-// take the file that was just uploaded to our S3 bucket by a pingbox and
-// process the data.  for now we only have stats and pings to cache.
-// pings will go into a table called CachedPing.  host stats will be
-// placed in a table called HostStat.
-
 var AWS = require('aws-sdk');
 var dynamodb = new AWS.DynamoDB({ apiVersion: "2012-08-10" })
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
@@ -10,7 +5,6 @@ var s3 = new AWS.S3({apiVersion: '2006-03-01'});
 var async = require('async');
 var srcBucket, srcKey, jsonData, testCaseId, reportDate, time, hostStats;
 
-// set up configuration...
 AWS.config.update({ 
     maxRetries: 0,
     region: 'us-east-1'
@@ -25,17 +19,12 @@ exports.handler = function(event, context) {
     s3.getObject({Bucket: srcBucket, Key: srcKey}, function(err, fileData) {
         try {
             if (!err) {
-
-                var jsonData    = JSON.parse(fileData.Body.toString()),
-                testCaseId  = jsonData['test_case_id'],
-                time        = jsonData['ping_day'],
-                //reportDate  = formattedDate(new Date(time));
-                hostStats = jsonData['host_stats'];
+                var jsonData = JSON.parse(fileData.Body.toString());
 
                 var dbItem = {
-                    "TestCaseId" : testCaseId,
-                    "Time"       : time,
-                    "HostStats"  : hostStats
+                    "TestCaseId" : jsonData['test_case_id'],
+                    "Time"       : jsonData['ping_day'],
+                    "HostStats"  : jsonData['host_stats']
                 };
 
                 // shove our data right into the database. GIT IN THERE!!!
@@ -80,22 +69,6 @@ function writeItem(options) {
     });
 }
 
-function formattedDate(input) {
-    try {
-
-        var date = input ? new Date(input) : new Date();
-        var m_names = ["01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12"];
-        var curr_date = date.getDate();
-        var curr_month = m_names[date.getMonth()];
-        var curr_year = date.getFullYear();
-        if (curr_date < 10) curr_date = "0" + curr_date;
-        return curr_year + "-" + curr_month + "-" + curr_date;
-
-    } catch(err) {
-        throw "the submitted date format was incorrect --- " + err.message;
-    }
-}
-
 function deleteFile() {
     // remove the file from our S3 data bucket.
     
@@ -106,7 +79,7 @@ function deleteFile() {
 
     s3.deleteObject(params, function(err, data) {
         if (err) throw "Error deleting object from S3: " + err.toString();
-        else     console.log("Deleted data file from source bucket: " + srcBucket + "\n---\n" + data.toString());
+        else     console.log("Deleted data file from source bucket: " + srcBucket + "/" + srcKey);
     });
 }
 
