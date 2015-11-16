@@ -2,7 +2,6 @@ var AWS = require('aws-sdk');
 var dynamodb = new AWS.DynamoDB({ apiVersion: "2012-08-10" })
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var s3 = new AWS.S3({apiVersion: '2006-03-01'});
-var async = require('async');
 var srcBucket, srcKey, jsonData, testCaseId, reportDate, time, hostStats;
 
 AWS.config.update({ 
@@ -57,7 +56,7 @@ function writeItem(options) {
     };
 
     dynamodbDoc.put(params, function(err, data) {
-        if (!err) console.log('Successfully wrote data to the ' + options['tableName'] + ' table:');
+        if (!err) console.log('Successfully wrote to the ' + options['tableName'] + ' table.');
         else      throw "An error occurred writing to the database: " + err.toString();
     });
 }

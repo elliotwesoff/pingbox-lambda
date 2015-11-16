@@ -10,7 +10,7 @@ if File.exists?(file_name)
 end
 
 ### create the new zip file.
-puts `zip -r -x install_dependencies upload_code_package.rb *.git* -9 ProcessPings.zip .`
+puts `zip -9 ProcessPings.zip ProcessPings.js`
 
 ### initialize our S3 client and use it to upload our file to
 ###  our code-repo bucket, pingbox-lambda.
