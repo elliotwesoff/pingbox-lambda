@@ -27,7 +27,7 @@ exports.handler = function(event, context) {
                 };
 
                 // shove our data right into the database. GIT IN THERE!!!
-                writeItem({ tableName: 'PingData', object: dbItem });
+                writeItem({ tableName: 'PingDataDev', object: dbItem });
 
                 // remove the file from S3.
                 deleteFile();

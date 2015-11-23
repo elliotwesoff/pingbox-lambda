@@ -1,7 +1,7 @@
 require 'fileutils'
 require 'aws-sdk'
 
-file_name = 'ProcessPings.zip'
+file_name = 'ProcessPingsDev.zip'
 
 ### remove the old zip file if there is one.
 if File.exists?(file_name)
@@ -10,7 +10,7 @@ if File.exists?(file_name)
 end
 
 ### create the new zip file.
-puts `zip -9 ProcessPings.zip ProcessPings.js`
+puts `zip -9 ProcessPingsDev.zip ProcessPingsDev.js`
 
 ### initialize our S3 client and use it to upload our file to
 ###  our code-repo bucket, pingbox-lambda.
@@ -40,7 +40,7 @@ FileUtils.rm(file_name)
 puts "Updating lambda source..."
 
 aws_lambda.update_function_code(
-  function_name: "ProcessPings",
+  function_name: "ProcessPingsDev",
   s3_bucket: bucket_name,
   s3_key: file_name
 )
