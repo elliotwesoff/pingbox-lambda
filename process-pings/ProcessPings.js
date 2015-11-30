@@ -2,14 +2,15 @@ var AWS = require('aws-sdk');
 var dynamodb = new AWS.DynamoDB({ apiVersion: "2012-08-10" })
 var dynamodbDoc = new AWS.DynamoDB.DocumentClient();
 var s3 = new AWS.S3({apiVersion: '2006-03-01'});
-var srcBucket, srcKey, jsonData, testCaseId, reportDate, time, hostStats;
+var srcBucket, srcKey, jsonData, testCaseId, reportDate, time, hostStats, globalContext;
 
 AWS.config.update({ 
-    maxRetries: 0,
+    maxRetries: 5,
     region: 'us-east-1'
 });
 
 exports.handler = function(event, context) {
+    globalContext = context;
 
     srcBucket = event.Records[0].s3.bucket.name;
     srcKey    = decodeURIComponent(event.Records[0].s3.object.key.replace(/\+/g, " "));  
@@ -40,7 +41,7 @@ exports.handler = function(event, context) {
             }
         } catch (e) {
             console.log(e.message);
-            context.fail(e);
+            setTimeout(function() { globalContext.fail(e) }, 3000);
         }
     });
 };
