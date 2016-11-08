@@ -22,7 +22,7 @@ Aws.config.update({
   credentials: Aws::Credentials.new(aws_key, secret)
 })
 
-bucket_name = 'pingbox-etc'
+bucket_name = 'pingbox-lambda'
 
 aws_lambda = Aws::Lambda::Client.new(region: Aws.config[:region], credentials: Aws.config[:credentials])
 client = Aws::S3::Client.new(region: Aws.config[:region], credentials: Aws.config[:credentials])
